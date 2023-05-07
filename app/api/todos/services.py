@@ -59,7 +59,7 @@ def update_content(
 ):
     try:
         with Session(engine) as session:
-            todo = session.get(Todos, id)
+            todo = session.get(Todos, payload.id)
             print("🚀 ~ update_content ~ ", todo)
 
             if todo:
@@ -72,6 +72,32 @@ def update_content(
             return (False, "invalid id")
     except:
         print("🚀 ~ update_content ~ error")
+        return (False, "database error")
+
+
+class UpdateTypePayload(BaseModel):
+    id: int
+    type: TodosTypes
+
+
+def update_type(
+    payload: UpdateTypePayload,
+):
+    try:
+        with Session(engine) as session:
+            todo = session.get(Todos, payload.id)
+            print("🚀 ~ update_type ~ ", todo)
+
+            if todo:
+                todo.type = payload.type
+                session.add(todo)
+                session.commit()
+
+                return (True, {"id": todo.id})
+
+            return (False, "invalid id")
+    except:
+        print("🚀 ~ update_type ~ error")
         return (False, "database error")
 
 

@@ -1,12 +1,15 @@
 from typing import Annotated
 from fastapi import APIRouter, Body, HTTPException
+from ...db.models import TodosTypes
 from .services import (
     TodoItem,
     UpdateContentPayload,
+    UpdateTypePayload,
     get_all_todos,
     get_todo,
     create_one_todo,
     update_content,
+    update_type,
     delete_todo,
 )
 
@@ -56,10 +59,24 @@ def delete_todo_controller(id: int):
 
 
 @todos_router.patch("/:id/content")
-def update_content_controller(content: Annotated[str, Body()], id: int):
-    print("🚀 ~ update_content_controller:")
+def update_content_controller(id: int, content: Annotated[str, Body()]):
+    print("🚀 ~ update_content_controller: ~")
     payload = UpdateContentPayload(content=content, id=id)
     res = update_content(payload)
+
+    if res[0] == False:
+        raise HTTPException(
+            status_code=res[1] == "database error" if 500 else 400,
+            detail={"ok": False, "reason": res[1]},
+        )
+    return {"ok": True, "data": res[1]}
+
+
+@todos_router.patch("/:id/type")
+def update_type_controller(id: int, type: Annotated[TodosTypes, Body()]):
+    print("🚀 ~ update_content_controller:")
+    payload = UpdateTypePayload(type=type, id=id)
+    res = update_type(payload)
 
     if res[0] == False:
         raise HTTPException(
